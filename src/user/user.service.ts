@@ -1,43 +1,43 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectModel } from '@nestjs/sequelize';
-import { User } from './user.model';
-import { NotFoundError } from 'rxjs';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from 'src/shared/entities/user.entity';
+import { promises } from 'dns';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User) private userModel: typeof User) { }
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) { }
   async create(createUserDto: CreateUserDto) {
     const { username, email, password, age, img } = createUserDto
-    return this.userModel.create({ username, email, password, age, img })
+    const user = this.userRepo.create({ username, email, password, age, img })
+    return this.userRepo.save(user)
   }
 
-  async findAll() {
-    return this.userModel.findAll()
+  async findAll(): Promise<User[]> {
+    return this.userRepo.find()
   }
 
-  async findOne(id: number) {
-    const user = await this.userModel.findByPk(+id)
-
+  async findOne(id: number): Promise<User> {
+    const user = await this.userRepo.findOneBy({ id: +id })
     if (!user) throw new NotFoundException("User not found")
     return user
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userModel.findByPk(+id)
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<{ message: String }> {
+    const user = await this.userRepo.findBy({ id: +id })
     if (!user) throw new NotFoundException("User not found");
 
-    await this.userModel.update(updateUserDto, { where: { id: +id } })
+    await this.userRepo.update(id, updateUserDto)
     return { message: "Updated user" }
   }
 
-  async remove(id: number) {
-    const user = await this.userModel.findByPk(+id)
+  async remove(id: number): Promise<{ message: String }> {
+    const user = await this.userRepo.findOneBy({ id: +id })
     if (!user) throw new NotFoundException("User not found");
 
-    await this.userModel.destroy({ where: { id: +id } })
-
+    await this.userRepo.remove(user)
     return { message: "Deleted user" }
   }
 }

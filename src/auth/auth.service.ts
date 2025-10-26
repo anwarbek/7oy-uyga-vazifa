@@ -1,10 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Auth } from './auth.model';
-import { InjectModel } from '@nestjs/sequelize';
 import { RegisterDto } from './dto/register.dto';
 import * as nodemailer from "nodemailer"
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from "bcrypt"
+import { InjectRepository } from '@nestjs/typeorm';
+import { Auth } from 'src/shared/entities/auth.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -16,34 +18,44 @@ export class AuthService {
     }
   })
   constructor(
-    @InjectModel(Auth) private authModel: typeof Auth,
+    @InjectRepository(Auth) private authRepo: Repository<Auth>,
     private jwtService: JwtService
   ) { }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto): Promise<{ message: string }> {
     const { username, email, password } = registerDto
 
-    const user = await this.authModel.findOne({ where: { email } })
+    const user = await this.authRepo.findOneBy({ email })
     if (user) throw new UnauthorizedException("User already exist")
 
     await this.transport.sendMail({
       from: "arsbekyaw@gmail.com",
       to: email,
-      subject: "hazl",
-      text: "salom"
+      subject: "hazil",
+      text: "salom hazil"
     })
-    await this.authModel.create({ username, email, password })
+
+    const hash = await bcrypt.hash(password, 10);
+
+    const result = this.authRepo.create({ username, email, password: hash, role: "user" })
+    await this.authRepo.save(result)
     return { message: "Registered" }
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<{ message: string } | { message: string, token: string }> {
     const { email, password } = loginDto
 
-    const user = await this.authModel.findOne({ where: { email } })
+    const user = await this.authRepo.findOneBy({ email })
     if (!user) throw new UnauthorizedException("User not found")
 
-    const payload = { sub: user.id, username: user.username };
-    const token = await this.jwtService.signAsync(payload)
-    return { message: "Success", token }
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (isMatch) {
+      const payload = { sub: user.id, username: user.username, role: user.role };
+      const token = await this.jwtService.signAsync(payload);
+      return { message: "Success", token };
+    } else {
+      return { message: "Wrong password" }
+    }
   }
 }
