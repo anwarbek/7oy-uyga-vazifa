@@ -31,7 +31,7 @@ export class UploadController {
   @UseInterceptors(
     FilesInterceptor("files", 10, {
       storage: diskStorage({
-        destination: join(process.cwd(), "upload"),
+        destination: join(process.cwd(), "uploads"),
         filename: (req, file, cb) => {
           const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
           const ext = extname(file.originalname)
