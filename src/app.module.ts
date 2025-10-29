@@ -10,6 +10,8 @@ import { Auth } from './shared/entities/auth.entity';
 import { User } from './shared/entities/user.entity';
 import { HttpExceptionFilter } from './filter/all-exception.filter';
 import { UploadModule } from './module/upload/upload.module';
+import { MongooseModule } from '@nestjs/mongoose'
+import { PostModule } from './module/post/post.module';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { UploadModule } from './module/upload/upload.module';
       ],
     }),
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
+    MongooseModule.forRoot(process.env.MONGO_UIR as string),
     TypeOrmModule.forRoot({
       type: "postgres",
       username: "postgres",
@@ -36,7 +39,8 @@ import { UploadModule } from './module/upload/upload.module';
     }),
     AuthModule,
     UserModule,
-    UploadModule
+    UploadModule,
+    PostModule,
   ],
   controllers: [],
   providers: [
