@@ -17,6 +17,7 @@ import { Article } from './shared/entities/article.entity';
 import { ArticleContent } from './shared/entities/article-content';
 import { ArticlesModule } from './module/articles/articles.module';
 import { Comment } from './shared/entities/comment.entity';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -48,7 +49,7 @@ import { Comment } from './shared/entities/comment.entity';
     CommentModule,
     ArticlesModule
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_PIPE,
