@@ -16,20 +16,24 @@ export class CreateArticleContentDto {
 
 export class CreateArticleDto {
   @IsString()
-  title: string
+  title: string;
 
   @IsString()
-  description: string
+  description: string;
 
   @IsString()
-  body: string
+  body: string;
 
   @IsString()
-  imgUrl: string
+  imgUrl: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  tags: string[];
 
   @IsOptional()
   @IsBoolean()
-  IsMemberOnly?: boolean
+  IsMemberOnly?: boolean;
 
   @IsArray()
   @Type(() => CreateArticleContentDto)

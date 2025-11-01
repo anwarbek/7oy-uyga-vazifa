@@ -26,7 +26,7 @@ export class Comment {
   @ManyToOne(() => Article, (article) => article.comments, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   article: Article;
 
-  @ManyToOne(() => Auth, (user) => user.comment, { onDelete: "CASCADE", onUpdate: "CASCADE" })
+  @ManyToOne(() => Auth, (auth) => auth.comment, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   author: Auth;
 
   @ManyToOne(() => Comment, (comment) => comment.replies, { nullable: true, onDelete: "CASCADE", onUpdate: "CASCADE" })

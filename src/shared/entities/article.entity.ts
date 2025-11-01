@@ -10,25 +10,28 @@ export class Article {
   id: number;
 
   @Column({ type: "text" })
-  title: string
+  title: string;
 
   @Column({ type: "text" })
-  description: string
+  description: string;
 
   @Column()
-  imgUrl: string
+  imgUrl: string;
+
+  @Column("simple-array", { nullable: true })
+  tags: string[];
 
   @Column({ default: false })
-  IsMemberOnly: boolean
+  IsMemberOnly: boolean;
 
   @CreateDateColumn()
-  createdAt: Date
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt: Date;
 
   // relations
-  @ManyToOne(() => Auth, (user) => user.articles)
+  @ManyToOne(() => Auth, (auth) => auth.articles)
   author: Auth;
 
   @OneToMany(() => Comment, (comment) => comment.article, { cascade: true })

@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTagDto } from './dto/create-tag.dto';
-import { UpdateTagDto } from './dto/update-tag.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tags } from 'src/shared/entities/tags.entity';
 import { Repository } from 'typeorm';
@@ -9,17 +8,21 @@ import { Repository } from 'typeorm';
 export class TagsService {
   constructor(@InjectRepository(Tags) private tagsRepository: Repository<Tags>) { }
   create(createTagDto: CreateTagDto) {
-    const { username, email, password, age, img } = createUserDto
-    const user = this.userRepo.create({ username, email, password, age, img })
-    return this.userRepo.save(user)
+    const { name, description } = createTagDto
+    const tag = this.tagsRepository.create({ name, description })
+    return this.tagsRepository.save(tag)
   }
 
-  findAll() {
-    return `This action returns all tags`;
+  async findAll() {
+    return this.tagsRepository.find()
   }
 
 
-  remove(id: number) {
-    return `This action removes a #${id} tag`;
+  async remove(id: number) {
+    const tag = await this.tagsRepository.findOneBy({ id: +id })
+    if (!tag) throw new NotFoundException("tag not found");
+
+    await this.tagsRepository.remove(tag)
+    return { message: "Deleted tag" }
   }
 }

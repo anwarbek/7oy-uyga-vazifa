@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Role } from "src/enums/role.enum";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 import { Article } from "./article.entity";
+import { Comment } from "./comment.entity";
 
 @Entity({ name: "auth" })
 export class Auth {
