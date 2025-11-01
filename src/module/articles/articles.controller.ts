@@ -5,12 +5,12 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Controller('articles')
 export class ArticlesController {
-  constructor(private readonly articlesService: ArticlesService) {}
+  constructor(private readonly articlesService: ArticlesService) { }
 
-  @Post()
-  create(@Body() createArticleDto: CreateArticleDto) {
-    return this.articlesService.create(createArticleDto);
-  }
+  // @Post()
+  // create(@Body() createArticleDto: CreateArticleDto) {
+  //   return this.articlesService.create(createArticleDto);
+  // }
 
   @Get()
   findAll() {
