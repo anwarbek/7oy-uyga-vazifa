@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,19 +32,54 @@ export class ArticlesService {
     return await this.articleRepository.save(article)
   }
 
-  findAll() {
-    return `This action returns all articles`;
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    tag?: string,
+    author?: string
+  ): Promise<{ articles: Article[], total: number }> {
+    const query = this.articleRepository
+      .createQueryBuilder("article")
+      .leftJoinAndSelect("article.author", "author")
+      .where("article.isPublished = :isPublished", { isPublished: true })
+      .skip((page - 1) * limit)
+      .take(limit)
+
+    if (author) {
+      query.andWhere("author.username = :author", { author })
+    }
+
+    const [articles, total] = await query.getManyAndCount()
+    return { articles, total }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} article`;
+
+  async update(id: number, updateArticleDto: UpdateArticleDto, currentUser: Auth): Promise<Article> {
+    const article = await this.articleRepository.findOneBy({ id })
+
+    if (article?.author.id !== currentUser.id) {
+      throw new ForbiddenException("You can only update you own articles")
+    }
+
+    if (!article) {
+      throw new NotFoundException("Article not found");
+    }
+
+    Object.assign(article, updateArticleDto)
+    return await this.articleRepository.save(article)
   }
 
-  update(id: number, updateArticleDto: UpdateArticleDto) {
-    return `This action updates a #${id} article`;
-  }
+  async remove(id: number, currentUser: Auth) {
+    const article = await this.articleRepository.findOneBy({ id })
 
-  remove(id: number) {
-    return `This action removes a #${id} article`;
+    if (article?.author.id !== currentUser.id) {
+      throw new ForbiddenException("You can only update you own articles")
+    }
+
+    if (!article) {
+      throw new NotFoundException("Article not found");
+    }
+
+    await this.articleRepository.remove(article)
   }
 }

@@ -24,6 +24,9 @@ export class Article {
   @Column({ default: false })
   IsMemberOnly: boolean;
 
+  @Column({ default: false })
+  isPublished: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
