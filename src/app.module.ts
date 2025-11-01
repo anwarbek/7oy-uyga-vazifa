@@ -11,7 +11,11 @@ import { User } from './shared/entities/user.entity';
 import { HttpExceptionFilter } from './filter/all-exception.filter';
 import { UploadModule } from './module/upload/upload.module';
 import { MongooseModule } from '@nestjs/mongoose'
-import { PostModule } from './module/post/post.module';
+import { CommentModule } from './module/comment/comment.module';
+import { Tags } from './shared/entities/tags.entity';
+import { Article } from './shared/entities/article.entity';
+import { ArticleContent } from './shared/entities/article-content';
+import { ArticlesModule } from './module/articles/articles.module';
 
 @Module({
   imports: [
@@ -32,7 +36,7 @@ import { PostModule } from './module/post/post.module';
       port: 5432,
       database: "test3",
       password: "wolf563",
-      entities: [Auth, User],
+      entities: [Auth, User, Tags, Comment, Article, ArticleContent],
       synchronize: true,
       autoLoadEntities: true,
       logging: false
@@ -40,7 +44,8 @@ import { PostModule } from './module/post/post.module';
     AuthModule,
     UserModule,
     UploadModule,
-    PostModule,
+    CommentModule,
+    ArticlesModule
   ],
   controllers: [],
   providers: [
